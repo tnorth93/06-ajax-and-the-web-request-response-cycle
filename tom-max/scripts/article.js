@@ -13,7 +13,7 @@ function Article (rawDataObj) {
 Article.all = [];
 
 // COMMENT: Why isn't this method written as an arrow function?
-// PUT YOUR RESPONSE HERE
+// The method refers to contextual 'this' which could mess with the scope intended.
 Article.prototype.toHtml = function() {
   let template = Handlebars.compile($('#article-template').text());
 
@@ -21,7 +21,7 @@ Article.prototype.toHtml = function() {
 
   // COMMENT: What is going on in the line below? What do the question mark and colon represent? How have we seen this same logic represented previously?
   // Not sure? Check the docs!
-  // PUT YOUR RESPONSE HERE
+  // The questions mark and colon are part of a ternary operator. The question mark declares the ternary operator and the colon separates the return values based on what the ternary operator determines to be true about the statement. So, publishStatus will be set to the article's publishedOn value if it exists, and if it doesn't exist, it will be set to '(draft)'.
   this.publishStatus = this.publishedOn ? `published ${this.daysAgo} days ago` : '(draft)';
   this.body = marked(this.body);
 
@@ -33,7 +33,7 @@ Article.prototype.toHtml = function() {
 // REVIEW: This function will take the rawData, how ever it is provided, and use it to instantiate all the articles. This code is moved from elsewhere, and encapsulated in a simply-named function for clarity.
 
 // COMMENT: Where is this function called? What does 'rawData' represent now? How is this different from previous labs?
-// PUT YOUR RESPONSE HERE
+// The function is called within the fetchAll function. rawData represent the JSON file within local storage. Until now, we have been referencing a JS file with the data in it.
 Article.loadAll = articleData => {
   articleData.sort((a,b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn)))
 
@@ -48,6 +48,22 @@ Article.fetchAll = () => {
     Article.loadAll();
 
   } else {
-
+    // $.getJSON({url: 'https://localhost:8080',
+    //   method: 'GET',
+    //   success: function(result) {
+    //     console.log(result)
+        // Article.loadAll(result);
+    //   }
+    // })
+    $.getJSON('../data/hackerIpsum.json', rawData => {
+      localStorage.setItem('rawData', JSON.stringify(rawData));
+      let retrievedObject = localStorage.getItem('rawData');
+      for(let articleIndex in rawData) {
+        console.log(rawData[articleIndex]);
+        Article.loadAll(rawData);
+      }
+    })
   }
 }
+
+
