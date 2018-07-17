@@ -8,7 +8,7 @@ function Article (rawDataObj) {
   this.body = rawDataObj.body;
   this.publishedOn = rawDataObj.publishedOn;
 }
-let articleCache;
+Article.articleCache;
 // REVIEW: Instead of a global `articles = []` array, let's attach this list of all articles directly to the constructor function. Note: it is NOT on the prototype. In JavaScript, functions are themselves objects, which means we can add properties/values to them at any time. In this case, the array relates to ALL of the Article objects, so it does not belong on the prototype, as that would only be relevant to a single instantiated Article.
 Article.all = [];
 
@@ -39,41 +39,31 @@ Article.loadAll = articleData => {
   console.log(articleData);
   articleData.forEach(articleObject => Article.all.push(new Article(articleObject)))
 }
-
+function getJsonFunc(){
+  $.getJSON('./data/hackerIpsum.json') .then((rawData => {
+    localStorage.setItem('rawData', JSON.stringify(rawData));
+    Article.loadAll(JSON.parse(localStorage.getItem(`rawData`)));
+    articleView.initIndexPage();
+}))}
 // REVIEW: This function will retrieve the data from either a local or remote source, and process it, then hand off control to the View.
 Article.fetchAll = () => {
   // REVIEW: What is this 'if' statement checking for? Where was the rawData set to local storage?
   if (localStorage.rawData) {
-    if(articleCache !== $.ajax({url: './data/hackerIpsum.json', type: 'HEAD',cache: true,})){
+    if(Article.articleCache !== $.ajax({url: './data/hackerIpsum.json', type: 'HEAD',cache: true,})){
       localStorage.clear();
-      $.getJSON('./data/hackerIpsum.json') .then((rawData => {
-        localStorage.setItem('rawData', JSON.stringify(rawData));
-        Article.loadAll(JSON.parse(localStorage.getItem(`rawData`)));
-        articleView.initIndexPage();
-        }))
-      }else{
-    Article.loadAll(JSON.parse(localStorage.getItem(`rawData`)));
-    articleView.initIndexPage();
-    }}
-
-   else {
-    articleCache =  $.ajax({
+      getJsonFunc();
+     
+    }else{
+      Article.loadAll(JSON.parse(localStorage.getItem(`rawData`)));
+      articleView.initIndexPage();
+  }}
+  else{
+    Article.articleCache =  $.ajax({
     url: './data/hackerIpsum.json', 
     type: 'HEAD',
     cache: true,
     });
-    console.log(articleCache);
-    $.getJSON('./data/hackerIpsum.json') .then((rawData => {
-      localStorage.setItem('rawData', JSON.stringify(rawData));
-      Article.loadAll(JSON.parse(localStorage.getItem(`rawData`)));
-      // for(let articleIndex in rawData) {
-        // Article.loadAll(rawData[articleIndex]);
-      articleView.initIndexPage();
-      }
-    ))
+    console.log(Article.articleCache);
+      getJsonFunc();
+    }
   }
-}
-
-
-
-
