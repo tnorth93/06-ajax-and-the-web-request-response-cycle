@@ -36,7 +36,7 @@ Article.prototype.toHtml = function() {
 // The function is called within the fetchAll function. rawData represent the JSON file within local storage. Until now, we have been referencing a JS file with the data in it.
 Article.loadAll = articleData => {
   articleData.sort((a,b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn)))
-
+  console.log(articleData);
   articleData.forEach(articleObject => Article.all.push(new Article(articleObject)))
 }
 
@@ -44,26 +44,22 @@ Article.loadAll = articleData => {
 Article.fetchAll = () => {
   // REVIEW: What is this 'if' statement checking for? Where was the rawData set to local storage?
   if (localStorage.rawData) {
+    Article.loadAll(JSON.parse(localStorage.getItem(`rawData`)));
+    articleView.initIndexPage();
+    }
 
-    Article.loadAll();
-
-  } else {
-    // $.getJSON({url: 'https://localhost:8080',
-    //   method: 'GET',
-    //   success: function(result) {
-    //     console.log(result)
-        // Article.loadAll(result);
-    //   }
-    // })
-    $.getJSON('../data/hackerIpsum.json', rawData => {
+   else {
+    $.getJSON('./data/hackerIpsum.json') .then((rawData => {
       localStorage.setItem('rawData', JSON.stringify(rawData));
-      let retrievedObject = localStorage.getItem('rawData');
-      for(let articleIndex in rawData) {
-        console.log(rawData[articleIndex]);
-        Article.loadAll(rawData);
+      Article.loadAll(JSON.parse(localStorage.getItem(`rawData`)));
+      // for(let articleIndex in rawData) {
+        // Article.loadAll(rawData[articleIndex]);
+      articleView.initIndexPage();
       }
-    })
+    ))
   }
 }
+
+
 
 
